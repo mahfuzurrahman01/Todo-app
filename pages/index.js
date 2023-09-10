@@ -18,6 +18,7 @@ export default function Home() {
     try {
       const response = await axios.get(MILESTONE)
       setMilestone(response.data)
+      console.log(response.data)
     }
     catch (error) {
       setIsError(error.message)
@@ -36,16 +37,17 @@ export default function Home() {
     event.preventDefault()
     const goal = event.target.text.value;
     const time = event.target.time.value;
+    const date = event.target.date.value;
 
     // validate that goal and time both is sated 
-    if (goal === '' || goal === undefined || time === '' || time === undefined) {
-      toastFunction('error', 'Sorry you have to set both GOAL and TIME')
+    if (goal === '' || goal === undefined || time === '' || time === undefined || date === '' || date === undefined) {
+      toastFunction('error', 'Sorry you have to set both GOAL, DATE and TIME')
       return
     }
 
-    const body = { todo: goal, time: time, listingNo: milestone.length + 1 }
-
-    axios.post('http://localhost:5000/milestone', body)
+    const body = { todo: goal,date: date, time: time, listingNo: milestone.length + 1,complete: false }
+    console.log(body)
+    axios.post('https://todo-server-theta-seven.vercel.app/milestone', body)
       .then(function (response) {
         console.log(response);
         if (response.data.acknowledged === true) {
@@ -70,7 +72,20 @@ export default function Home() {
     setGoalLength(goal.length)
   }
 
+  const [backspaceCount, setBackspaceCount] = useState(0);
+  const handleKeyPress = (event) => {
+    const key = event.key;
+    
 
+    if (key === 'Backspace') {
+      setBackspaceCount(backspaceCount + 1);
+      console.log(`Backspace key pressed ${backspaceCount + 1} times.`);
+    } else {
+      console.log(`Pressed key: ${key}`);
+    }
+  };
+  const minDate = new Date().toISOString().split('T')[0];
+  console.log(minDate)
   return (
     <>
 
@@ -81,13 +96,15 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className='w-4/5 mx-auto p-8'>
-        <p className='text-2xl font-bold text-slate-400 text-center mt-5 uppercase bg-lime-200 w-4/6 mx-auto px-4 py-2 rounded-lg shadow-md shadow-yellow-100'>TODO LIST</p>
-        <div className='w-3/6 p-5 rounded-lg bg-lime-200 mx-auto shadow-2xl shadow-gray-300 flex-col mt-8 flex justify-center items-center'>
+      <main className='lg:w-4/5 w-11/12 min-h-screen mx-auto md:p-8 p-2 flex md:justify-center justify-start flex-col  gap-2'>
+      
+        <div className='lg:w-3/6 md:w-11/12 w-[95%] p-5 rounded-lg bg-opacity-30 bg-slate-100 mx-auto mt-8 flex justify-center flex-col md:items-center items-start'>
           <form onSubmit={handleSubmit} className='relative w-full flex flex-col justify-center items-center gap-2'>
-            <p className={`absolute top-2 right-24 ${goalLength === 0 && 'text-gray-400'} ${goalLength > 0 && goalLength < 30 && 'text-green-500'} ${goalLength === 30 && 'text-red-500'}  text-sm`}>{goalLength}/30</p>
-            <input type="text" name="text" onChange={goalInputSection} maxLength="30" id="text" className='w-4/6 rounded-lg px-5 py-2 outline-none' placeholder='Enter your goal' />
-            <input type="time" name="time" id="time" className='w-4/6 rounded-lg px-5 py-2 outline-none' placeholder='Enter time' />
+            <p className={`absolute top-2 lg:right-24 md:right-28 right-2 ${goalLength === 0 && 'text-gray-400'} ${goalLength > 0 && goalLength < 30 && 'text-green-500'} ${goalLength === 30 && 'text-red-500'}  text-sm`}>{goalLength}/30</p>
+            <input type="text" name="text" onChange={goalInputSection} maxLength="30" id="text" className='md:w-4/6 w-full md:text-base text-sm rounded-lg px-5 py-2 outline-none'
+            onKeyPress={handleKeyPress} placeholder='Enter your goal' />
+            <input type="date" min={minDate} name="date" id="date" className='md:w-4/6 w-full md:text-base text-sm rounded-lg px-5 py-2 outline-none' placeholder='Enter time' />
+            <input type="time" name="time" id="time" className='md:w-4/6 w-full md:text-base text-sm rounded-lg px-5 py-2 outline-none' placeholder='Enter time' />
             <button type='submit' className='px-10 py-2 rounded bg-orange-400 hover:bg-orange-500 duration-300 text-white mt-4'>Add</button>
           </form>
         </div>

@@ -1,1 +1,1 @@
-export const MILESTONE = 'http://localhost:5000/milestone';
+export const MILESTONE = 'https://todo-server-theta-seven.vercel.app/milestone';
